@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>gxcg网公告爬取结果导出</title>
+    <link rel="icon" type="image/x-icon" href="{{url_for('static',filename='spider-ico.png')}}" />
+</head>
+<body>
+<h1 style="text-align:center;">gxcg网-公告爬取结果导出</h1>
+<hr />
+<center>
+<form action="/gxcg-spider/excel" method="get">
+    <table border="0" cellspacing="" cellpadding="">
+                <tr>
+                    <td><label>分类:</label></td>
+                    <td>
+                        <select id="category" name="category">
+    	                    <option value="0">中标成交结果公告</option>
+	                    </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="keyword">关键字：</label></td>
+                    <td><input type="text" name="keyword" /></td>
+                </tr>
+                <tr>
+                    <td><label for="startTime">起始时间：</label></td>
+                    <td><input type="date" name="startTime" /></td>
+                </tr>
+                <tr>
+                    <td><label for="endTime">结束时间：</label></td>
+                    <td><input type="date" name="endTime" /></td>
+                </tr>
+				<tr>
+                    <td><input type="submit" value="导出" /></td>
+                </tr>
+            </table>
+</form>
+</center>
+<hr />
+<footer>
+	<p style="text-align:center;">由wjy提供技术支持</p>
+</footer>
+</body>

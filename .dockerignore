@@ -1,0 +1,12 @@
+## 构建镜像时add命令忽略的文件
+.git
+.idea
+__pycache__
+venv
+test
+dll
+doc
+README.md
+build
+dist
+*.exe
