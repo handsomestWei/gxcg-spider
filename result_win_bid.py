@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import _thread
 import sqlite3
 import time
 import traceback
@@ -69,6 +70,31 @@ def export_excel_from_db(keyword='', start_time='', end_time=''):
     file_path = spider_category.EXCEL_OUT_PUT_DIR + file_name
     __export_excel(category_details, file_path)
     return file_path
+
+# 初始化数据
+def init_db_data():
+    conn = None
+    try:
+        conn = sqlite3.connect(spider_category.DB_PATH)
+        conn.execute('''CREATE TABLE IF NOT EXISTS category_result_win_bid
+                             (project_code TEXT PRIMARY KEY NOT NULL,
+                             category TEXT, project_name TEXT, title TEXT, publish_date date,
+                             win_bid_price TEXT, win_bid_supply_name TEXT, win_bid_supply_addr TEXT,
+                             url TEXT, content TEXT);''')
+        rows = conn.execute("SELECT count(*) from category_result_win_bid").fetchall()
+        row = rows[0]
+        if row[0] == 0:
+            # 异步执行，避免阻塞主线程
+            _thread.start_new_thread(spider_with_server, ('', time.strftime("%Y-01-01", time.localtime()), ''))
+    except:
+        traceback.print_exc()
+        return False
+    finally:
+        if conn != None:
+            try:
+                conn.close()
+            except:
+                traceback.print_exc()
 
 def __select_db(keyword='', start_time='', end_time=''):
     category_details = []
@@ -185,11 +211,6 @@ def __save_db(keyword, category_details=[]):
     conn = None
     try:
         conn = sqlite3.connect(spider_category.DB_PATH)
-        conn.execute('''CREATE TABLE IF NOT EXISTS category_result_win_bid
-                         (project_code TEXT PRIMARY KEY NOT NULL,
-                         category TEXT, project_name TEXT, title TEXT, publish_date date,
-                         win_bid_price TEXT, win_bid_supply_name TEXT, win_bid_supply_addr TEXT,
-                         url TEXT, content TEXT);''')
         for category_detail in category_details:
             if category_detail.project_code == '':
                 continue

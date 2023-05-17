@@ -65,5 +65,7 @@ def __get_dir_file_info(dir):
 
 if __name__ == '__main__':
     spider_category.PROGRESS_BAR_DISABLE = True
+    for value in spider_category.SPIDER_CATEGORY.values():
+        value.init_db_data()
     start_all(spawn=True)
     server.run(debug=True, port=8765, host='0.0.0.0')
