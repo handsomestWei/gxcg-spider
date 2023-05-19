@@ -1,7 +1,7 @@
 import os
 import traceback
 import flask
-from flask import request, render_template
+from flask import request, render_template, jsonify
 from cron_lite import cron_task, start_all
 import time
 import spider_category
@@ -24,6 +24,21 @@ def download_excel_result():
         .export_excel_from_db(keyword=keyword, start_time=start_time, end_time=end_time)
     response = flask.send_file(file_path)
     return response
+
+@server.route('/gxcg-spider/data', methods=['get'])
+def query_data():
+    category = request.values.get('category')
+    keyword = request.values.get('keyword')
+    start_time = request.values.get('startTime')
+    end_time = request.values.get('endTime')
+    data = spider_category.SPIDER_CATEGORY[category]\
+        .query_data(keyword=keyword, start_time=start_time, end_time=end_time)
+
+    rsp = {}
+    rsp['code'] = '200'
+    rsp['msg'] = 'success'
+    rsp['data'] = data
+    return jsonify(rsp)
 
 @server.errorhandler(404)
 def page_not_found(e):

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import _thread
+import ast
+import json
 import sqlite3
 import time
 import traceback
@@ -42,6 +44,19 @@ class CategoryDetail():
     # 文章内容
     content = ""
 
+    def __init__(self, category='', title='', project_code='', project_name='', publish_date='',
+                 url='', win_bid_price='', win_bid_supply_name='', win_bid_supply_addr='', content=''):
+        self.category = category
+        self.title = title
+        self.project_code = project_code
+        self.project_name = project_name
+        self.publish_date = publish_date
+        self.url = url
+        self.win_bid_price = win_bid_price
+        self.win_bid_supply_name = win_bid_supply_name
+        self.win_bid_supply_addr = win_bid_supply_addr
+        self.content = content
+
 # 爬取中标成交结果公告
 def spider(keyword='', start_time='', end_time=''):
     # step1：抓取网页数据
@@ -64,12 +79,24 @@ def spider_with_server(keyword='', start_time='', end_time=''):
     # step3：数据写入数据库
     __save_db(keyword, category_details)
 
+# 导出数据到excel
 def export_excel_from_db(keyword='', start_time='', end_time=''):
     category_details = __select_db(keyword, start_time, end_time)
     file_name = __set_excel_file_name(keyword, start_time, end_time)
     file_path = spider_category.EXCEL_OUT_PUT_DIR + file_name
     __export_excel(category_details, file_path)
     return file_path
+
+# 数据查询
+def query_data(keyword='', start_time='', end_time=''):
+    data = []
+    category_details = __select_db(keyword, start_time, end_time)
+    for detail in category_details:
+        # 对象转json，并去掉转义符
+        json_str = json.dumps(detail.__dict__, ensure_ascii=False)
+        json_str = ast.literal_eval(json_str)
+        data.append(json_str)
+    return data
 
 # 初始化数据
 def init_db_data():
@@ -105,9 +132,9 @@ def __select_db(keyword='', start_time='', end_time=''):
         if keyword != '':
             query_sql += " and title like '%" + keyword + "%'"
         if start_time != '':
-            query_sql += ' and datetime(publish_date) >= ' + "'" + start_time + "'"
+            query_sql += ' and date(publish_date) >= ' + "'" + start_time + "'"
         if end_time != '':
-            query_sql += ' and datetime(publish_date) <= ' "'" + end_time + "'"
+            query_sql += ' and date(publish_date) <= ' "'" + end_time + "'"
         rows = conn.execute("SELECT * from category_result_win_bid where" + query_sql + " order by publish_date desc").fetchall()
         for row in rows:
             category_detail = CategoryDetail()
@@ -121,7 +148,7 @@ def __select_db(keyword='', start_time='', end_time=''):
             category_detail.win_bid_supply_name = row[6]
             category_detail.win_bid_supply_addr = row[7]
             category_detail.url = row[8]
-            category_detail.content = row[9]
+            # category_detail.content = row[9]
         return category_details
     except:
         traceback.print_exc()
