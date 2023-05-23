@@ -1,4 +1,5 @@
 import os
+import re
 import traceback
 import flask
 from flask import request, render_template, jsonify
@@ -20,6 +21,10 @@ def download_excel_result():
     keyword = request.values.get('keyword')
     start_time = request.values.get('startTime')
     end_time = request.values.get('endTime')
+    # 入参校验，防止sql注入
+    if not __check_param(category, keyword, start_time, end_time):
+        return '请输入规范的参数！'
+
     file_path = spider_category.SPIDER_CATEGORY[category]\
         .export_excel_from_db(keyword=keyword, start_time=start_time, end_time=end_time)
     response = flask.send_file(file_path)
@@ -31,9 +36,12 @@ def query_data():
     keyword = request.values.get('keyword')
     start_time = request.values.get('startTime')
     end_time = request.values.get('endTime')
+    # 入参校验，防止sql注入
+    if not __check_param(category, keyword, start_time, end_time):
+        return '请输入规范的参数！'
+
     data = spider_category.SPIDER_CATEGORY[category]\
         .query_data(keyword=keyword, start_time=start_time, end_time=end_time)
-
     rsp = {}
     rsp['code'] = '200'
     rsp['msg'] = 'success'
@@ -77,6 +85,16 @@ def __get_dir_file_info(dir):
         stat = os.stat(path)
         file_list.append([path, time.ctime(stat.st_ctime)])
     return file_list
+
+def __check_param(*params):
+    pattern = r"\b(and|like|exec|insert|select|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|delclare|or)\b|(\*|;)"
+    for param in params:
+        if param == '' or param == None:
+            continue
+        r = re.search(pattern, str(param).lower())
+        if r:
+            return False
+    return True
 
 if __name__ == '__main__':
     spider_category.PROGRESS_BAR_DISABLE = True

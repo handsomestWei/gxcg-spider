@@ -131,9 +131,9 @@ def __select_db(keyword='', start_time='', end_time=''):
         query_sql = ' 1 == 1'
         if keyword != '':
             query_sql += " and title like '%" + keyword + "%'"
-        if start_time != '':
+        if start_time != '' and start_time != None:
             query_sql += ' and date(publish_date) >= ' + "'" + start_time + "'"
-        if end_time != '':
+        if end_time != '' and end_time != None:
             query_sql += ' and date(publish_date) <= ' "'" + end_time + "'"
         rows = conn.execute("SELECT * from category_result_win_bid where" + query_sql + " order by publish_date desc").fetchall()
         for row in rows:

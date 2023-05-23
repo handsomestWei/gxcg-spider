@@ -12,7 +12,7 @@
 
 ## 使用示例
 ### 客户端模式
-```buildoutcfg
+```commandline
 执行：python spider_client.py -c 0 -k 社会福利院 -s 2021-12-01 -e 2023-04-20
 或者：gxcg_spider_tool.exe -c 0 -k 社会福利院 -s 2021-12-01 -e 2023-04-20
 输出：中标成交结果公告-社会福利院-时间(2021-12-01~2023-04-20).xlsx
@@ -22,11 +22,16 @@
 
 生成exe并添加dll：pyinstaller -p ./result_win_bid.py ./spider_category.py -F ./spider_client.py -i ./doc/ico/spider32.ico -n gxcg_spider_tool --add-data "./dll/api-ms-win-core-path-l1-1-0.dll;."
 ```
+
 ### 服务端模式
-```buildoutcfg
-搭建docker环境，执行docker-start.sh
+```commandline
+本地运行：python spider_server.py
+```
+```commandline
+docker运行：搭建docker环境，执行docker-start.sh
 访问：http://127.0.0.1:8765
 ```
+
 ### 其他
 ```commandline
 导出依赖：pip freeze > requirements.txt
