@@ -23,8 +23,8 @@ DIC_FILE_PATH = './data/jieba/dict.txt'
 IDF_FILE_PATH = './data/jieba/idf.txt'
 
 # TODO 使用结巴分词抽取标题里的机构名称。使用自定义字典和词频
-def get_category_name_by_title(title=''):
+def get_category_name_by_title(title='', topK=10):
     # jieba.load_userdict(DIC_FILE_PATH)
     # jieba.cut(title)
-    jieba.analyse.set_idf_path(IDF_FILE_PATH)
-    return jieba.analyse.extract_tags(title, topK=1)[0]
+    # jieba.analyse.set_idf_path(IDF_FILE_PATH)
+    return jieba.analyse.extract_tags(title, topK=topK)

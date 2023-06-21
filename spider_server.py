@@ -101,4 +101,6 @@ if __name__ == '__main__':
     for value in spider_category.SPIDER_CATEGORY.values():
         value.init_db_data()
     start_all(spawn=True)
-    server.run(debug=True, port=8765, host='0.0.0.0')
+    # flask开启调试模式会导致main方法执行两次
+    # server.run(debug=True, port=8765, host='0.0.0.0')
+    server.run(debug=False, port=8765, host='0.0.0.0')

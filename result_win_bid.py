@@ -94,6 +94,8 @@ def query_data(keyword='', start_time='', end_time=''):
     for detail in category_details:
         # 对象转json，并去掉转义符
         json_str = json.dumps(detail.__dict__, ensure_ascii=False)
+        # ast.literal_eval语法解析不支持带有值为null
+        json_str = json_str.replace(': null', ': ""')
         json_str = ast.literal_eval(json_str)
         data.append(json_str)
     return data
@@ -103,6 +105,13 @@ def init_db_data():
     conn = None
     try:
         conn = sqlite3.connect(spider_category.DB_PATH)
+        # 配置中文分词器
+        # TODO 重新编译sqlite3加入tokenize=icu中文分词模块
+        # conn.execute('''CREATE VIRTUAL TABLE IF NOT EXISTS category_result_win_bid
+        #                              USING fts4(project_code TEXT PRIMARY KEY NOT NULL,
+        #                              category TEXT, project_name TEXT, title TEXT, publish_date date,
+        #                              win_bid_price TEXT, win_bid_supply_name TEXT, win_bid_supply_addr TEXT,
+        #                              url TEXT, content TEXT, tokenize=icu);''')
         conn.execute('''CREATE TABLE IF NOT EXISTS category_result_win_bid
                              (project_code TEXT PRIMARY KEY NOT NULL,
                              category TEXT, project_name TEXT, title TEXT, publish_date date,
@@ -129,8 +138,14 @@ def __select_db(keyword='', start_time='', end_time=''):
     try:
         conn = sqlite3.connect(spider_category.DB_PATH)
         query_sql = ' 1 == 1'
-        if keyword != '':
-            query_sql += " and title like '%" + keyword + "%'"
+        # TODO 配置中文分词器后，改用match 'A B'查询
+        if keyword != '' and keyword != None:
+            match_sql = ""
+            dicts = spider_category.get_category_name_by_title(keyword)
+            for dict in dicts:
+                match_sql += " and title like '%" + dict + "%'"
+            query_sql += match_sql
+
         if start_time != '' and start_time != None:
             query_sql += ' and date(publish_date) >= ' + "'" + start_time + "'"
         if end_time != '' and end_time != None:
